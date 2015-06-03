@@ -1,0 +1,72 @@
+<html>
+<head>
+  <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+  <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/q-cluster.css">
+  <!--<script src="//spatialdev.github.io/q-cluster/demo/js/vendor/modernizr-2.7.1.min.js"></script>-->
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="/src/utils.js"></script>
+  <script src="/src/clustering.js"></script>
+  <script src="/src/point-clusterer.js"></script>
+  <script src="/src/make-donuts.js"></script>
+  <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v2/themes/css/cartodb.ie.css" />
+  <![endif]-->
+  <style>
+    html, body {width:100%; height:100%; padding: 0; margin: 0;}
+    #cartodb-map { width: 100%; height:100%; background: black;}
+  </style>
+
+  <script>
+    var map;
+    function init(){
+
+      map = new L.Map('cartodb-map', { 
+                    center: [32.9, -88.3],
+                    zoom: 9
+                })
+
+      L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+      }).addTo(map);
+
+      var layerUrl = 'https://team.cartodb.com/u/athompson/api/v2_1/viz/8b27b022-0971-11e5-8fe7-0e0c41326911/viz.json';
+
+      cartodb.createLayer(map, layerUrl)
+        .addTo(map)
+        .on('done', function(layer) {
+        }).on('error', function() {
+          //log the error
+        });
+
+        //leaflet q-cluster code
+        $.ajax({
+                context: this,
+                type: 'GET',
+                dataType: "json",
+                url: 'data/loan_data.json',
+                success: function(data, textStatus, jqXHR){
+                    
+                    
+                    var pointClusterer = new QCluster.PointClusterer(data, 'loans', map, 'loan-layer',
+                                                                {
+                                                                    reportingProperty: 'consumer_commercial',
+                                                                    backgroundColor: '#d95f02',
+                                                                    defaultPalette: [ '#1b9e77', '#7570b3']
+                                                                });
+                    
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    
+                }
+            });
+    }  
+  </script>
+</head>
+
+<body onload="init()">
+  <div id='cartodb-map'></div>
+</body>
+</html>
